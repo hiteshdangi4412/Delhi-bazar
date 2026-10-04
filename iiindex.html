@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Delhi Bazar - Sabse Sasta, Sabse Accha</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    body { background-color: #f1f3f6; color: #212121; }
+    
+    /* Header & Navigation */
+    header { background-color: #2874f0; color: white; padding: 12px 20px; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+    .header-container { display: flex; align-items: center; justify-content: space-between; max-width: 1200px; margin: 0 auto; gap: 15px; }
+    .logo { font-size: 24px; font-weight: bold; cursor: pointer; color: #ffe500; }
+    .search-box { flex-grow: 1; max-width: 500px; }
+    .search-box input { width: 100%; padding: 10px 15px; border-radius: 4px; border: none; outline: none; font-size: 14px; }
+    .header-actions { display: flex; gap: 15px; align-items: center; }
+    .btn-login { background-color: #ffffff; color: #2874f0; border: none; padding: 8px 18px; font-weight: bold; border-radius: 3px; cursor: pointer; }
+    .cart-btn { background: #fb641b; color: white; border: none; padding: 8px 16px; border-radius: 3px; cursor: pointer; font-weight: bold; }
+
+    /* Banner Section */
+    .banner-container { max-width: 1200px; margin: 15px auto; padding: 0 10px; display: none; }
+    .promo-banner { background: linear-gradient(90deg, #ff416c, #ff4b2b); color: white; padding: 15px; border-radius: 8px; text-align: center; font-size: 18px; font-weight: bold; box-shadow: 0 3px 6px rgba(0,0,0,0.15); }
+    .promo-banner span { background: #ffe500; color: #000; padding: 3px 8px; border-radius: 4px; margin-left: 8px; font-size: 15px; }
+
+    /* Special Gift Notice */
+    .geeta-offer-strip { max-width: 1200px; margin: 10px auto; padding: 10px; background: #fff3cd; border: 1px solid #ffeeba; border-radius: 6px; display: flex; align-items: center; justify-content: center; gap: 15px; }
+    .geeta-offer-strip img { height: 45px; border-radius: 4px; }
+    .geeta-offer-strip p { font-size: 14px; color: #856404; font-weight: 600; }
+
+    /* Categories Menu */
+    .category-bar { max-width: 1200px; margin: 0 auto; display: flex; gap: 10px; overflow-x: auto; padding: 10px; }
+    .category-chip { background: white; border: 1px solid #ddd; padding: 6px 14px; border-radius: 20px; cursor: pointer; white-space: nowrap; font-size: 14px; }
+    .category-chip.active { background: #2874f0; color: white; border-color: #2874f0; }
+
+    /* Products Grid */
+    .main-container { max-width: 1200px; margin: 15px auto; padding: 0 10px; }
+    .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 15px; }
+    .product-card { background: white; border-radius: 6px; padding: 12px; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 1px 3px rgba(0,0,0,0.08); transition: 0.2s; }
+    .product-card:hover { transform: translateY(-3px); box-shadow: 0 4px 8px rgba(0,0,0,0.12); }
+    .product-card img { width: 100%; height: 180px; object-fit: cover; border-radius: 4px; }
+    .product-title { font-size: 15px; font-weight: 600; margin: 10px 0 5px 0; color: #333; }
+    .product-desc { font-size: 12px; color: #666; margin-bottom: 8px; }
+    .product-price { font-size: 18px; font-weight: bold; color: #388e3c; }
+    .product-original-price { font-size: 13px; text-decoration: line-through; color: #878787; margin-left: 6px; }
+    .add-to-cart-btn { background: #2874f0; color: white; border: none; padding: 8px; border-radius: 4px; margin-top: 10px; cursor: pointer; font-weight: 600; width: 100%; }
+
+    /* Modals (Login & Checkout) */
+    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1000; justify-content: center; align-items: center; }
+    .modal-content { background: white; width: 90%; max-width: 480px; border-radius: 8px; padding: 25px; position: relative; max-height: 90vh; overflow-y: auto; }
+    .close-btn { position: absolute; right: 15px; top: 12px; font-size: 22px; cursor: pointer; color: #777; }
+    .form-group { margin-bottom: 12px; }
+    .form-group label { display: block; font-size: 13px; margin-bottom: 4px; font-weight: 600; }
+    .form-group input, .form-group textarea { width: 100%; padding: 8px 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px; }
+    .captcha-box { display: flex; align-items: center; gap: 10px; margin: 10px 0; }
+    .captcha-code { background: #e0e0e0; padding: 6px 12px; font-weight: bold; font-family: monospace; letter-spacing: 3px; border-radius: 4px; font-size: 16px; }
+
+    /* QR Code Display */
+    .qr-container { text-align: center; margin-top: 15px; padding: 15px; border: 1px dashed #2874f0; border-radius: 6px; background: #f9fbff; }
+    .qr-container img { width: 180px; height: 180px; margin-bottom: 8px; }
+    .upi-info { font-size: 13px; font-weight: bold; color: #333; margin-bottom: 5px; }
+
+    /* Cart Floating Summary */
+    .free-gift-badge { background: #e8f5e9; border: 1px solid #c8e6c9; padding: 8px; border-radius: 4px; margin-top: 10px; display: flex; align-items: center; gap: 8px; }
+    .free-gift-badge img { width: 35px; height: 45px; border-radius: 3px; }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header>
+    <div class="header-container">
+      <div class="logo" onclick="filterCategory('All')">Delhi Bazar</div>
+      <div class="search-box">
+        <input type="text" id="searchInput" placeholder="Search combos, shirts, sarees, lowers..." onkeyup="searchProducts()">
+      </div>
+      <div class="header-actions">
+        <button class="btn-login" id="loginBtn" onclick="openLoginModal()">Login</button>
+        <button class="cart-btn" onclick="openCartModal()">Cart (<span id="cartCount">0</span>)</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Special Offer Strip -->
+  <div class="geeta-offer-strip">
+    <img src="https://images.unsplash.com/photo-1608889825205-eebdb9fc5806?w=100&auto=format&fit=crop&q=60" alt="Bhagwat Geeta">
+    <p>Special Festive Dhamaka: ₹500 se upar ke order par Pavitra "Shrimad Bhagwat Geeta" bilkul FREE!</p>
+  </div>
+
+  <!-- After Login Offer Banner -->
+  <div class="banner-container" id="promoBanner">
+    <div class="promo-banner">
+      🎉 Welcome Offer Activated! <span>BUY 2 GET 3 FREE on Selected Items</span> & Flat ₹50 Extra Off!
+    </div>
+  </div>
+
+  <!-- Category Selection -->
+  <div class="category-bar">
+    <button class="category-chip active" onclick="filterCategory('All', this)">Sabhi Products</button>
+    <button class="category-chip" onclick="filterCategory('Boys', this)">Boys Combos (₹199)</button>
+    <button class="category-chip" onclick="filterCategory('Girls', this)">Girls Combos (₹199)</button>
+    <button class="category-chip" onclick="filterCategory('Lowers', this)">Lowers Pack (₹400)</button>
+    <button class="category-chip" onclick="filterCategory('Kids', this)">Kids Wear (₹100-₹300)</button>
+    <button class="category-chip" onclick="filterCategory('Under300', this)">Daily Budget Wear (₹100-₹300)</button>
+  </div>
+
+  <!-- Product Grid -->
+  <div class="main-container">
+    <div class="products-grid" id="productGrid"></div>
+  </div>
+
+  <!-- Login Modal (Email + Captcha) -->
+  <div class="modal" id="loginModal">
+    <div class="modal-content">
+      <span class="close-btn" onclick="closeModal('loginModal')">&times;</span>
+      <h3 style="margin-bottom: 15px;">Login / Registration</h3>
+      <div class="form-group">
+        <label>Email Address</label>
+        <input type="email" id="userEmail" placeholder="apna-email@example.com" required>
+      </div>
+      <div class="form-group">
+        <label>Captcha Verification</label>
+        <div class="captcha-box">
+          <span class="captcha-code" id="captchaDisplay">4A9X</span>
+          <button type="button" onclick="generateCaptcha()" style="padding: 4px 8px; font-size: 12px;">Refresh</button>
+        </div>
+        <input type="text" id="captchaInput" placeholder="Upar diya captcha code likhein">
+      </div>
+      <button class="add-to-cart-btn" onclick="handleLogin()" style="background:#fb641b;">Login Karein</button>
+    </div>
+  </div>
+
+  <!-- Checkout & Cart Modal -->
+  <div class="modal" id="cartModal">
+    <div class="modal-content">
+      <span class="close-btn" onclick="closeModal('cartModal')">&times;</span>
+      <h3>Aapka Cart Aur Order Details</h3>
+      <hr style="margin: 10px 0;">
+      
+      <div id="cartItemsList" style="max-height: 150px; overflow-y: auto; margin-bottom: 10px; font-size: 14px;"></div>
+      <div style="font-size: 16px; font-weight: bold; margin-bottom: 10px;">Total Bill: ₹<span id="cartTotal">0</span></div>
+
+      <!-- Free Bhagwat Geeta Container -->
+      <div id="freeGiftNotice" style="display: none;" class="free-gift-badge">
+        <img src="https://images.unsplash.com/photo-1608889825205-eebdb9fc5806?w=100&auto=format&fit=crop&q=60" alt="Bhagwat Geeta">
+        <div>
+          <div style="font-weight: bold; color: #2e7d32; font-size: 13px;">Mubarak Ho! Free Gift Added</div>
+          <div style="font-size: 12px; color: #555;">Pavitra Shrimad Bhagwat Geeta aapke order ke saath bilkul free bheji jayegi.</div>
+        </div>
+      </div>
+
+      <h4 style="margin: 15px 0 8px 0;">Delivery Address Details</h4>
+      <div class="form-group">
+        <label>Pura Naam</label>
+        <input type="text" id="custName" placeholder="Aapka pura naam">
+      </div>
+      <div class="form-group">
+        <label>Primary Phone Number</label>
+        <input type="tel" id="custPhone" placeholder="10-digit mobile number">
+      </div>
+      <div class="form-group">
+        <label>Alternate Mobile Number</label>
+        <input type="tel" id="custAltPhone" placeholder="Emergency / Dusra phone number">
+      </div>
+      <div class="form-group">
+        <label>Complete Flat / House No, Gali, Area</label>
+        <textarea id="custAddress" rows="2" placeholder="House no, gali, landmark ke saath pura pata"></textarea>
+      </div>
+      <div class="form-group">
+        <label>Pincode</label>
+        <input type="text" id="custPin" placeholder="Area Pincode (e.g. 110001)">
+      </div>
+
+      <!-- UPI QR Code Section -->
+      <div class="qr-container">
+        <div class="upi-info">Scan & Pay via any UPI App (GPay/PhonePe/Paytm)</div>
+        <div style="font-size: 12px; color: #666; margin-bottom: 8px;">UPI ID: <strong>hiteshdangi343@naviaxis</strong></div>
+        <img id="upiQrCode" src="" alt="Payment QR Code">
+        <div style="font-size: 12px; color: #d32f2f;">Payment karne ke baad 'Confirm Order' par click karein</div>
+      </div>
+
+      <button class="add-to-cart-btn" onclick="confirmOrder()" style="background: #388e3c; margin-top: 15px;">Order Confirm Karein</button>
+    </div>
+  </div>
+
+  <script>
+    // Product Catalog (No Duplicate Item Codes)
+    const products = [
+      { id: "DB-B01", category: "Boys", name: "3 Formal Shirts + 3 Pants Combo", price: 199, originalPrice: 999, img: "https://images.unsplash.com/photo-1602810318383-e386cc2a3ccf?w=400&auto=format&fit=crop&q=60", desc: "Super saver combo of 3 stylish shirts & 3 durable trousers" },
+      { id: "DB-B02", category: "Boys", name: "3 Casual Checks Shirts + 3 Chinos", price: 199, originalPrice: 1099, img: "https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=400&auto=format&fit=crop&q=60", desc: "Daily casual combo pack for college & office" },
+      { id: "DB-G01", category: "Girls", name: "Pack of 3 Designer Sarees Combo", price: 199, originalPrice: 1299, img: "https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=400&auto=format&fit=crop&q=60", desc: "Festive printed art silk 3 sarees combo with blouse piece" },
+      { id: "DB-G02", category: "Girls", name: "Pack of 3 Cotton Kurtis + Plazo Set", price: 199, originalPrice: 899, img: "https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?w=400&auto=format&fit=crop&q=60", desc: "Comfortable regular ethnic wear 3 combo" },
+      { id: "DB-L01", category: "Lowers", name: "Pack of 4 Cotton Trackpants / Lowers", price: 400, originalPrice: 1199, img: "https://images.unsplash.com/photo-1552902865-b72c031ac5ea?w=400&auto=format&fit=crop&q=60", desc: "4 solid stretchable gym & home wear lowers" },
+      { id: "DB-L02", category: "Lowers", name: "Pack of 4 Joggers with Pockets", price: 400, originalPrice: 1299, img: "https://images.unsplash.com/photo-1506630448388-4e683c67ddb0?w=400&auto=format&fit=crop&q=60", desc: "Durable stitching relaxed-fit lowers combo" },
+      { id: "DB-K01", category: "Kids", name: "Kids T-Shirt & Shorts Set", price: 100, originalPrice: 399, img: "https://images.unsplash.com/photo-1519238263530-99bdd11df2ea?w=400&auto=format&fit=crop&q=60", desc: "Soft cotton breathable daily wear for kids" },
+      { id: "DB-K02", category: "Kids", name: "Boys Party Suit Set (Bache)", price: 200, originalPrice: 699, img: "https://images.unsplash.com/photo-1503944583220-79d8926ad5e2?w=400&auto=format&fit=crop&q=60", desc: "Smart festive wear combo for boys" },
+      { id: "DB-K03", category: "Kids", name: "Girls Frock & Legging Combo", price: 300, originalPrice: 799, img: "https://images.unsplash.com/photo-1622290291468-a28f7a7dc6a8?w=400&auto=format&fit=crop&q=60", desc: "Cute printed dress set for girls" },
+      { id: "DB-U01", category: "Under300", name: "Men Slim Fit Cotton T-Shirt", price: 100, originalPrice: 399, img: "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=400&auto=format&fit=crop&q=60", desc: "Premium bio-wash everyday round neck t-shirt" },
+      { id: "DB-U02", category: "Under300", name: "Women Rayon Printed Top", price: 200, originalPrice: 599, img: "https://images.unsplash.com/photo-1534126511673-b6899657816a?w=400&auto=format&fit=crop&q=60", desc: "Stylish floral design casual top" },
+      { id: "DB-U03", category: "Under300", name: "Heavy Winter Hoodie / Sweatshirt", price: 300, originalPrice: 899, img: "https://images.unsplash.com/photo-1556905055-8f358a7a47b2?w=400&auto=format&fit=crop&q=60", desc: "Warm fleece winter wear pullover" }
+    ];
+
+    let cart = [];
+    let currentCaptcha = "";
+    const UPI_ID = "hiteshdangi343@naviaxis";
+    const PAYEE_NAME = "Hitesh Dangi";
+
+    // Initialize Store
+    function renderProducts(items) {
+      const grid = document.getElementById("productGrid");
+      grid.innerHTML = "";
+      if (items.length === 0) {
+        grid.innerHTML = `<p style="grid-column: 1/-1; text-align: center; padding: 20px;">Koi product nahi mila!</p>`;
+        return;
+      }
+      items.forEach(prod => {
+        grid.innerHTML += `
+          <div class="product-card">
+            <div>
+              <img src="${prod.img}" alt="${prod.name}">
+              <div class="product-title">${prod.name}</div>
+              <div class="product-desc">${prod.desc}</div>
+            </div>
+            <div>
+              <div>
+                <span class="product-price">₹${prod.price}</span>
+                <span class="product-original-price">₹${prod.originalPrice}</span>
+              </div>
+              <button class="add-to-cart-btn" onclick="addToCart('${prod.id}')">Add To Cart</button>
+            </div>
+          </div>
+        `;
+      });
+    }
+
+    // Category Filtering
+    function filterCategory(cat, element) {
+      if (element) {
+        document.querySelectorAll('.category-chip').forEach(el => el.classList.remove('active'));
+        element.classList.add('active');
+      }
+      if (cat === "All") {
+        renderProducts(products);
+      } else {
+        renderProducts(products.filter(p => p.category === cat));
+      }
+    }
+
+    // Live Search
+    function searchProducts() {
+      const query = document.getElementById("searchInput").value.toLowerCase();
+      const filtered = products.filter(p => 
+        p.name.toLowerCase().includes(query) || 
+        p.category.toLowerCase().includes(query) || 
+        p.desc.toLowerCase().includes(query)
+      );
+      renderProducts(filtered);
+    }
+
+    // Cart Management
+    function addToCart(id) {
+      const item = products.find(p => p.id === id);
+      cart.push(item);
+      document.getElementById("cartCount").innerText = cart.length;
+      alert(item.name + " cart mein jod diya gaya hai!");
+    }
+
+    function openCartModal() {
+      if (cart.length === 0) {
+        alert("Cart abhi khali hai! Pehle kuch shopping karein.");
+        return;
+      }
+      const cartList = document.getElementById("cartItemsList");
+      cartList.innerHTML = "";
+      let total = 0;
+      cart.forEach((item, index) => {
+        total += item.price;
+        cartList.innerHTML += `<div style="display:flex; justify-content:space-between; margin-bottom:5px;">
+          <span>${index + 1}. ${item.name}</span>
+          <strong>₹${item.price}</strong>
+        </div>`;
+      });
+      document.getElementById("cartTotal").innerText = total;
+
+      // Check ₹500+ Bhagwat Geeta Condition
+      const giftBox = document.getElementById("freeGiftNotice");
+      if (total >= 500) {
+        giftBox.style.display = "flex";
+      } else {
+        giftBox.style.display = "none";
+      }
+
+      // Generate Live Dynamic UPI QR Code
+      const upiUrl = `upi://pay?pa=${UPI_ID}&pn=${encodeURIComponent(PAYEE_NAME)}&am=${total}&cu=INR&tn=DelhiBazarOrder`;
+      const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(upiUrl)}`;
+      document.getElementById("upiQrCode").src = qrApiUrl;
+
+      document.getElementById("cartModal").style.display = "flex";
+    }
+
+    function confirmOrder() {
+      const name = document.getElementById("custName").value.trim();
+      const phone = document.getElementById("custPhone").value.trim();
+      const altPhone = document.getElementById("custAltPhone").value.trim();
+      const address = document.getElementById("custAddress").value.trim();
+      const pin = document.getElementById("custPin").value.trim();
+
+      if (!name || !phone || !altPhone || !address || !pin) {
+        alert("Kripya address, alternate phone number aur sabhi details bharein!");
+        return;
+      }
+
+      alert("Dhanyawaad " + name + "! Aapka order record ho gaya hai. Payment verification ke baad parcel dispatch kar diya jayega.");
+      cart = [];
+      document.getElementById("cartCount").innerText = "0";
+      closeModal('cartModal');
+    }
+
+    // Captcha & Registration Modal
+    function openLoginModal() {
+      generateCaptcha();
+      document.getElementById("loginModal").style.display = "flex";
+    }
+
+    function generateCaptcha() {
+      const chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+      let code = "";
+      for (let i = 0; i < 4; i++) {
+        code += chars.charAt(Math.floor(Math.random() * chars.length));
+      }
+      currentCaptcha = code;
+      document.getElementById("captchaDisplay").innerText = code;
+    }
+
+    function handleLogin() {
+      const email = document.getElementById("userEmail").value.trim();
+      const enteredCaptcha = document.getElementById("captchaInput").value.trim();
+
+      if (!email.includes("@") || !email.includes(".")) {
+        alert("Kripya sahi email address daalein!");
+        return;
+      }
+      if (enteredCaptcha.toUpperCase() !== currentCaptcha) {
+        alert("Galat Captcha! Kripya dobara koshish karein.");
+        generateCaptcha();
+        return;
+      }
+
+      alert("Login safal raha! Special offers unlock ho gaye hain.");
+      document.getElementById("loginBtn").innerText = "Profile";
+      document.getElementById("promoBanner").style.display = "block";
+      closeModal('loginModal');
+    }
+
+    function closeModal(id) {
+      document.getElementById(id).style.display = "none";
+    }
+
+    // Initial Load
+    renderProducts(products);
+  </script>
+</body>
+</html>
